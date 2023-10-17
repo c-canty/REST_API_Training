@@ -18,18 +18,25 @@ namespace MyFirstAPI.Controllers
         }
 
 
-        //[HttpGet]
-        //public ActionResult<IEnumerable<Product>> GetAllProducts() // ActionResult is used here as it requires no type parameter or input from the user
-        //{
-        //    var products = _context.Products.ToList(); // ToList() is an extension method that converts the result to a list and converts to JSON
-        //    return Ok(products); // Ok() is a method that returns a 200 status code with the result
-        //}
-
-
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
-        {             
-            return Ok(await _context.Products.ToListAsync()); // Ok() is a method that returns a 200 status code with the result. It is automatically converted to JSON
+        public async Task<IActionResult> GetAllProducts([FromQuery]ProductQueryPerameters queryPerameters)
+        {   
+            IQueryable<Product> products = _context.Products; // IQueryable is an interface that allows querying of a specific type of data
+
+            if (queryPerameters.MinPrice != null) // If the minimum price is not the default value of decimal, return the products with a price greater than or equal to the minimum price
+            {
+                products = products.Where(p => p.Price >= queryPerameters.MinPrice.Value); // Where() is a method that filters a sequence of values based on a predicate
+            }
+            if (queryPerameters.MaxPrice != null) // If the maximum price is not the default value of decimal, return the products with a price less than or equal to the maximum price
+            {
+                products = products.Where(p => p.Price <= queryPerameters.MaxPrice.Value); // Where() is a method that filters a sequence of values based on a predicate
+            }
+
+            products = products
+                .Skip(queryPerameters.Size * (queryPerameters.Page -1)) // Skip() is a method that skips a specified number of elements in a sequence and returns the remaining elements
+                .Take(queryPerameters.Size); // Take() is a method that returns a specified number of contiguous elements from the start of a sequence
+
+            return Ok(await products.ToListAsync()); // Ok() is a method that returns a 200 status code with the result. It is automatically converted to JSON
         }
 
         [HttpGet("{id}")] // A URI for a specific action
