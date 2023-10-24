@@ -1,5 +1,6 @@
 using MyFirstAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Asp.Versioning;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,26 @@ builder.Services.AddDbContext<ShopContext>(options =>
     options.UseInMemoryDatabase("Shop"); // Install-Package Microsoft.EntityFrameworkCore.InMemory to make it work 
 });
 
+builder.Services.AddApiVersioning(options =>
+{
+    options.ReportApiVersions = true; // Reports the API versions in the response header    
+    options.DefaultApiVersion = new ApiVersion(1, 0); // Sets the default API version to 1.0
+    options.AssumeDefaultVersionWhenUnspecified = true; // Sets the default API version to 1.0
+
+    options.ApiVersionReader = new HeaderApiVersionReader("X-API-Version"); // Sets the API version reader to read the API version from the X-API-Version header
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder
+        .WithOrigins("https://localhost:7126");
+        
+        builder.WithHeaders("X-API-Version");
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,6 +49,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors();
 
 app.MapControllers();
 
