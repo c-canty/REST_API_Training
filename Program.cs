@@ -30,8 +30,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
     {
-        builder
-        .WithOrigins("https://localhost:7126");
+        builder.AllowAnyOrigin();
         
         builder.WithHeaders("X-API-Version");
     });
