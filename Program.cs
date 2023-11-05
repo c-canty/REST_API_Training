@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Asp.Versioning;
 
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,6 +18,8 @@ builder.Services.AddDbContext<ShopContext>(options =>
 {
     options.UseInMemoryDatabase("Shop"); // Install-Package Microsoft.EntityFrameworkCore.InMemory to make it work 
 });
+
+//builder.Services.AddDbContext<ShopContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddApiVersioning(options =>
 {
